@@ -1,26 +1,35 @@
 package hu.unideb.inf.models;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Date;
 
 public class UserModel {
     //User (id, username, email, pass, age, picture, lastemail, lastemailchange, lastlogin)
     int id;
-    String userName, email, pass, age, lastEmail;
-    LocalDate lastLogin,LastEmailChange;
+    int age;
+    String userName, email, pass, lastEmail;
+    LocalDate lastLogin,lastEmailChange, BirthDate;
     // milyen típus legyen a picture?
 
-    public UserModel(int id, String userName, String email, String pass, String age, String lastEmail, LocalDate lastLogin, LocalDate lastEmailChange) {
+    public UserModel(int id, String userName, String email, String pass, LocalDate BirthDate, String lastEmail, LocalDate lastLogin, LocalDate lastEmailChange) {
         this.id = id;
         this.userName = userName;
         this.email = email;
         this.pass = pass;
-        this.age = age;
+        this.age = calculateAge(BirthDate);
         this.lastEmail = lastEmail;
         this.lastLogin = lastLogin;
-        LastEmailChange = lastEmailChange;
+        this.lastEmailChange = lastEmailChange;
     }
 
+    // Segédmetódus a számoláshoz
+    private int calculateAge(LocalDate birthDate) {
+        if (birthDate == null) {
+            return 0;
+        }
+        return Period.between(birthDate, LocalDate.now()).getYears();
+    }
     public int getId() {
         return id;
     }
@@ -37,7 +46,7 @@ public class UserModel {
         return pass;
     }
 
-    public String getAge() {
+    public int getAge() {
         return age;
     }
 
@@ -50,7 +59,7 @@ public class UserModel {
     }
 
     public LocalDate getLastEmailChange() {
-        return LastEmailChange;
+        return lastEmailChange;
     }
 
     public void setUserName(String userName) {
@@ -65,8 +74,12 @@ public class UserModel {
         this.pass = pass;
     }
 
-    public void setAge(String age) {
-        this.age = age;
+    public void setBirthDate(LocalDate birthDate) {
+        BirthDate = birthDate;
+        this.age = calculateAge(birthDate);    }
+
+    public LocalDate getBirthDate() {
+        return BirthDate;
     }
 
     public void setLastEmail(String lastEmail) {
@@ -78,7 +91,7 @@ public class UserModel {
     }
 
     public void setLastEmailChange(LocalDate lastEmailChange) {
-        LastEmailChange = lastEmailChange;
+        lastEmailChange = lastEmailChange;
     }
 
 }
