@@ -1,17 +1,24 @@
 package hu.unideb.inf.models;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 public class UserModel {
+    //User (id, username, email, pass, age, picture, lastemail, lastemailchange, lastlogin)
     int id;
-    String userName, descripition,location,destination;
-    // ez milyen típus? picture;
+    String userName, email, pass, age, lastEmail;
+    LocalDate lastLogin,LastEmailChange;
+    // milyen típus legyen a picture?
 
-
-    public UserModel(int id, String userName, String descripition, String location, String destination) {
-        id = id;
-        userName = userName;
-        this.descripition = descripition;
-        this.location = location;
-        this.destination = destination;
+    public UserModel(int id, String userName, String email, String pass, String age, String lastEmail, LocalDate lastLogin, LocalDate lastEmailChange) {
+        this.id = id;
+        this.userName = userName;
+        this.email = email;
+        this.pass = pass;
+        this.age = age;
+        this.lastEmail = lastEmail;
+        this.lastLogin = lastLogin;
+        LastEmailChange = lastEmailChange;
     }
 
     public int getId() {
@@ -22,31 +29,56 @@ public class UserModel {
         return userName;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPass() {
+        return pass;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public String getLastEmail() {
+        return lastEmail;
+    }
+
+    public LocalDate getLastLogin() {
+        return lastLogin;
+    }
+
+    public LocalDate getLastEmailChange() {
+        return LastEmailChange;
+    }
+
     public void setUserName(String userName) {
-        userName = userName;
+        this.userName = userName;
     }
 
-    public String getDescripition() {
-        return descripition;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public void setDescripition(String descripition) {
-        this.descripition = descripition;
+    public void setPass(String pass) {
+        this.pass = pass;
     }
 
-    public String getLocation() {
-        return location;
+    public void setAge(String age) {
+        this.age = age;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setLastEmail(String lastEmail) {
+        this.lastEmail = lastEmail;
     }
 
-    public String getDestination() {
-        return destination;
+    public void setLastLogin(LocalDate lastLogin) {
+        this.lastLogin = lastLogin;
     }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
+    public void setLastEmailChange(LocalDate lastEmailChange) {
+        LastEmailChange = lastEmailChange;
     }
+
 }
