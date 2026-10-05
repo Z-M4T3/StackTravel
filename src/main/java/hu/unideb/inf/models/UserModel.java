@@ -1,29 +1,29 @@
 package hu.unideb.inf.models;
 
 public class UserModel {
-    int Id;
-    String UserName, descripition,location,destination;
+    int id;
+    String userName, descripition,location,destination;
     // ez milyen típus? picture;
 
 
     public UserModel(int id, String userName, String descripition, String location, String destination) {
-        Id = id;
-        UserName = userName;
+        id = id;
+        userName = userName;
         this.descripition = descripition;
         this.location = location;
         this.destination = destination;
     }
 
     public int getId() {
-        return Id;
+        return id;
     }
 
     public String getUserName() {
-        return UserName;
+        return userName;
     }
 
     public void setUserName(String userName) {
-        UserName = userName;
+        userName = userName;
     }
 
     public String getDescripition() {
