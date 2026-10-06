@@ -1,7 +1,7 @@
 package hu.unideb.inf.models;
 
 public class TripModel {
-    int id, indx, userId,cardId;
+    private int id, indx, userId,cardId;
 
     public TripModel(int id, int indx, int userId, int cardId) {
         this.id = id;

@@ -1,28 +1,29 @@
 package hu.unideb.inf.models;
 
 public class CardModel {
-    int id;
-    String name, descripition,location,destination;
-    // ez milyen típus? picture;
+    private int id;
+    private String name, descripition,location,destination;
+    private int[][] picture;
 
 
-    public CardModel(int id, String name, String descripition, String location, String destination) {
-        id = id;
-        name = name;
+    public CardModel(int id, String name, String descripition, String location, String destination,int[][] picture) {
+        this.id = id;
+        this.name = name;
         this.descripition = descripition;
         this.location = location;
         this.destination = destination;
+        this.picture=picture;
     }
 
     public int getId() {
         return id;
     }
 
-    public String name() {
+    public String getName() {
         return name;
     }
 
-    public void name(String name) {
+    public void setName(String name) {
         name = name;
     }
 
@@ -48,5 +49,13 @@ public class CardModel {
 
     public void setDestination(String destination) {
         this.destination = destination;
+    }
+
+    public int[][] getPicture() {
+        return picture;
+    }
+
+    public void setPicture(int[][] picture) {
+        this.picture = picture;
     }
 }

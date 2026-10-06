@@ -6,10 +6,10 @@ import java.util.Date;
 
 public class UserModel {
     //User (id, username, email, pass, age, picture, lastemail, lastemailchange, lastlogin)
-    int id;
-    int age;
-    String userName, email, pass, lastEmail;
-    LocalDate lastLogin,lastEmailChange, BirthDate;
+    private int id;
+
+    private String userName, email, pass, lastEmail;
+    private LocalDate lastLogin,lastEmailChange, BirthDate;
     // milyen típus legyen a picture?
 
     public UserModel(int id, String userName, String email, String pass, LocalDate BirthDate, String lastEmail, LocalDate lastLogin, LocalDate lastEmailChange) {
@@ -17,7 +17,7 @@ public class UserModel {
         this.userName = userName;
         this.email = email;
         this.pass = pass;
-        this.age = calculateAge(BirthDate);
+
         this.lastEmail = lastEmail;
         this.lastLogin = lastLogin;
         this.lastEmailChange = lastEmailChange;
@@ -47,7 +47,7 @@ public class UserModel {
     }
 
     public int getAge() {
-        return age;
+        return calculateAge(this.BirthDate);
     }
 
     public String getLastEmail() {
@@ -76,7 +76,7 @@ public class UserModel {
 
     public void setBirthDate(LocalDate birthDate) {
         BirthDate = birthDate;
-        this.age = calculateAge(birthDate);    }
+    }
 
     public LocalDate getBirthDate() {
         return BirthDate;
@@ -91,7 +91,7 @@ public class UserModel {
     }
 
     public void setLastEmailChange(LocalDate lastEmailChange) {
-        lastEmailChange = lastEmailChange;
+        this.lastEmailChange = lastEmailChange;
     }
 
 }
