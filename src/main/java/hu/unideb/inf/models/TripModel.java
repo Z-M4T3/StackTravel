@@ -1,40 +1,58 @@
 package hu.unideb.inf.models;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "trip")   // ide írd be a tábla nevét
+
 public class TripModel {
-    private int id, indx, userId,cardId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public TripModel(int id, int indx, int userId, int cardId) {
-        this.id = id;
-        this.indx = indx;
+    @Column(name = "indx")
+    private int index;
+
+    @Column(name = "user_id")
+    private Integer userId;
+
+    @Column(name = "card_id")
+    private Integer cardId;
+
+    public TripModel() {}
+
+    public TripModel(int index, Integer userId, Integer cardId) {
+        //this.id = id;             adatbáis generálja
+        this.index = index;
         this.userId = userId;
         this.cardId = cardId;
     }
 
-    public void setIndx(int indx) {
-        this.indx = indx;
+    public void setIndex(int index) {
+        this.index = index;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
-    public void setCardId(int cardId) {
+    public void setCardId(Integer cardId) {
         this.cardId = cardId;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
     public int getIndx() {
-        return indx;
+        return index;
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public int getCardId() {
+    public Integer getCardId() {
         return cardId;
     }
 }

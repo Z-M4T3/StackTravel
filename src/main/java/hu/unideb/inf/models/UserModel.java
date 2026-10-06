@@ -1,26 +1,54 @@
 package hu.unideb.inf.models;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Date;
 
+@Entity
+@Table(name = "users")
 public class UserModel {
     //User (id, username, email, pass, age, picture, lastemail, lastemailchange, lastlogin)
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    private String userName, email, pass, lastEmail;
-    private LocalDate lastLogin,lastEmailChange, BirthDate;
-    // milyen típus legyen a picture?
+    @Column(name = "username", nullable = false, unique = true)
+    private String userName;
 
-    public UserModel(int id, String userName, String email, String pass, LocalDate BirthDate, String lastEmail, LocalDate lastLogin, LocalDate lastEmailChange) {
-        this.id = id;
+    @Column(name = "email", nullable = false)
+    private String email;
+
+    @Column(name = "pass", nullable = false)
+    private String pass;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    @Column(name = "last_email")
+    private String lastEmail;
+
+    @Column(name = "last_login")
+    private LocalDate lastLogin;
+
+    @Column(name = "last_email_change")
+    private LocalDate lastEmailChange;
+
+    @Column(name = "picture")
+    private String picture;
+
+    // JPA-hoz kötelező
+    public UserModel() {}
+
+    public UserModel(String userName, String email, String pass, LocalDate BirthDate, String lastEmail, LocalDate lastLogin, LocalDate lastEmailChange, String picture) {
+        //this.id = id;         adatbázis generálja
         this.userName = userName;
         this.email = email;
         this.pass = pass;
-
+        this.birthDate = BirthDate;
         this.lastEmail = lastEmail;
         this.lastLogin = lastLogin;
         this.lastEmailChange = lastEmailChange;
+        this.picture=picture;
     }
 
     // Segédmetódus a számoláshoz
@@ -30,8 +58,16 @@ public class UserModel {
         }
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
-    public int getId() {
+    public Integer getId() {
         return id;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 
     public String getUserName() {
@@ -45,9 +81,9 @@ public class UserModel {
     public String getPass() {
         return pass;
     }
-
+    @Transient
     public int getAge() {
-        return calculateAge(this.BirthDate);
+        return calculateAge(this.birthDate);
     }
 
     public String getLastEmail() {
@@ -75,11 +111,11 @@ public class UserModel {
     }
 
     public void setBirthDate(LocalDate birthDate) {
-        BirthDate = birthDate;
+        this.birthDate = birthDate;
     }
 
     public LocalDate getBirthDate() {
-        return BirthDate;
+        return birthDate;
     }
 
     public void setLastEmail(String lastEmail) {

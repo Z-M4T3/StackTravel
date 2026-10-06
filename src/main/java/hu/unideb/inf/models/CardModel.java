@@ -1,21 +1,42 @@
 package hu.unideb.inf.models;
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "card")   // ide írd az adatbázis tábla nevét
 
 public class CardModel {
-    private int id;
-    private String name, descripition,location,destination;
-    private int[][] picture;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
+    @Column(name = "name", nullable = false)
+    private String name;
 
-    public CardModel(int id, String name, String descripition, String location, String destination,int[][] picture) {
-        this.id = id;
+    @Column(name = "description", length = 1000)
+    private String description;
+
+    @Column(name = "location")
+    private String location;
+
+    @Column(name = "destination")
+    private String destination;
+
+    @Column(name = "picture")
+    private String picture;
+
+    public CardModel() {
+    }
+
+    public CardModel(String name, String description, String location, String destination, String picture) {
+        //this.id = id;             Ezt elvileg az adatbázis generálja
         this.name = name;
-        this.descripition = descripition;
+        this.description = description;
         this.location = location;
         this.destination = destination;
         this.picture=picture;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -24,15 +45,15 @@ public class CardModel {
     }
 
     public void setName(String name) {
-        name = name;
+        this.name = name;
     }
 
-    public String getDescripition() {
-        return descripition;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDescripition(String descripition) {
-        this.descripition = descripition;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getLocation() {
@@ -51,11 +72,11 @@ public class CardModel {
         this.destination = destination;
     }
 
-    public int[][] getPicture() {
+    public String getPicture() {
         return picture;
     }
 
-    public void setPicture(int[][] picture) {
+    public void setPicture(String picture) {
         this.picture = picture;
     }
 }
