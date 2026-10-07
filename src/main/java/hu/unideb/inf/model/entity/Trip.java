@@ -1,4 +1,4 @@
-package hu.unideb.inf.model.entiry;
+package hu.unideb.inf.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,7 +38,7 @@ public class Trip {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_trips_user")
     )
-    private User userId;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
@@ -46,7 +46,7 @@ public class Trip {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_trips_card")
     )
-    private Card cardId;
+    private Card card;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -1,6 +1,6 @@
 package hu.unideb.inf.repository;
 
-import hu.unideb.inf.model.entiry.User;
+import hu.unideb.inf.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package hu.unideb.inf.model.entiry;
+package hu.unideb.inf.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,7 +28,7 @@ public class Card {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", length = 1000)
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "location")
