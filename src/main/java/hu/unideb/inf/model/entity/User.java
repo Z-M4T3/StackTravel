@@ -1,4 +1,4 @@
-package hu.unideb.inf.model.entiry;
+package hu.unideb.inf.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +23,6 @@ import java.time.Period;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    //User (id, username, email, pass, age, picture, lastemail, lastemailchange, lastlogin)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -35,7 +34,7 @@ public class User {
     private String email;
 
     @Column(name = "pass", nullable = false)
-    private String pass;
+    private String passwordHash;
 
     @Column(name = "birth_date")
     private LocalDate birthDate;

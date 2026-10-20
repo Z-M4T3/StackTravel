@@ -1,20 +1,20 @@
 package hu.unideb.inf.service;
 
 import hu.unideb.inf.exceptions.EmailAlreadyTakenException;
-import hu.unideb.inf.exceptions.IncorrectPasswordException;
 import hu.unideb.inf.exceptions.UserNotFoundException;
 import hu.unideb.inf.exceptions.UsernameAlreadyTakenException;
 import hu.unideb.inf.mapper.EntityMapper;
 import hu.unideb.inf.model.dto.UserDto;
-import hu.unideb.inf.model.entiry.User;
+import hu.unideb.inf.model.entity.User;
 import hu.unideb.inf.repository.UserRepository;
-import hu.unideb.inf.security.PasswordEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -41,7 +41,13 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
+    private MessageSource messageSource;
+
+    @Mock
     private EntityMapper mapper;
+
+    @Mock
+    private PasswordManagementService passwordManagementService;
 
     @InjectMocks
     private UserService userService;
@@ -55,7 +61,7 @@ class UserServiceTest {
         user.setId(USER_ID);
         user.setUsername("alice");
         user.setEmail("alice@example.com");
-        user.setPass("stored-hash");
+        user.setPasswordHash("stored-hash");
         user.setBirthDate(LocalDate.of(1995, 4, 12));
         user.setPicture("old-picture.png");
 
@@ -82,7 +88,7 @@ class UserServiceTest {
         UserDto result = userService.register(userDto);
 
         assertSame(userDto, result);
-        assertEquals("new-hash", user.getPass());
+        assertEquals("new-hash", user.getPasswordHash());
         verify(userRepository).save(user);
         verify(mapper).dtoToUser(userDto);
         verify(mapper).userToDto(user);
@@ -166,29 +172,6 @@ class UserServiceTest {
     }
 
     @Test
-    void changePasswordShouldVerifyCurrentPasswordAndSaveNewHash() {
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("old-password", "stored-hash")).thenReturn(true);
-        when(passwordEncoder.encode("new-password")).thenReturn("new-hash");
-
-        userService.changePassword(USER_ID, userDto);
-
-        assertEquals("new-hash", user.getPass());
-        verify(userRepository).save(user);
-    }
-
-    @Test
-    void changePasswordShouldRejectIncorrectCurrentPassword() {
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("old-password", "stored-hash")).thenReturn(false);
-
-        assertThrows(IncorrectPasswordException.class,
-                () -> userService.changePassword(USER_ID, userDto));
-
-        verify(userRepository, never()).save(user);
-    }
-
-    @Test
     void deleteByIdShouldDeleteExistingUser() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
 
@@ -258,6 +241,6 @@ class UserServiceTest {
         Optional<UserDto> result = userService.authenticate(userDto);
 
         assertFalse(result.isPresent());
-        verify(passwordEncoder, never()).matches(userDto.getPassword(), user.getPass());
+        verify(passwordEncoder, never()).matches(userDto.getPassword(), user.getPasswordHash());
     }
 }
