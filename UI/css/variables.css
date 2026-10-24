@@ -1,0 +1,39 @@
+:root {
+    --color-primary: #1D1D58;
+    --color-primary-hover: #292978;
+    --color-primary-light: #ECECF7;
+    --color-secondary: #F79900;
+    --color-secondary-hover: #E08B00;
+    --color-secondary-light: #FFF6E6;
+
+    --color-bg-app: #F5F6FA;
+    --color-bg-card: #FFFFFF;
+    --color-bg-sidebar: #FFFFFF;
+    --color-bg-hover: #F0F2F7;
+
+    --color-text-main: #1A1C23;
+    --color-text-muted: #6B7280;
+    --color-text-inverse: #FFFFFF;
+
+    --color-border: #E5E7EB;
+    --color-border-focus: #1D1D58;
+
+    --color-danger: #DC2626;
+    --color-danger-light: #FEE2E2;
+    --color-success: #16A34A;
+    --color-success-light: #DCFCE7;
+
+    --font-family-main: 'Microsoft YaHei UI', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-full: 9999px;
+
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+}
