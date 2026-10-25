@@ -1,6 +1,8 @@
 package hu.unideb.inf.mapper;
 
+import hu.unideb.inf.model.dto.CardDto;
 import hu.unideb.inf.model.dto.UserDto;
+import hu.unideb.inf.model.entity.Card;
 import hu.unideb.inf.model.entity.User;
 import org.mapstruct.Mapper;
 
@@ -14,4 +16,9 @@ public interface EntityMapper {
 
     @Mapping(target = "id", ignore = true)
     User dtoToUser(UserDto dto);
+
+    CardDto cardToDto(Card card);
+
+    @Mapping(target = "id", ignore = true)
+    Card dtoToCard(CardDto dto);
 }
