@@ -91,4 +91,11 @@ public class TripService {
     private String message(String code, Object... args) {
         return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
+
+    public TripDto update(TripDto dto) {
+
+
+        Trip saved = tripRepository.save(trip);
+        return mapper.tripToDto(saved);
+    }
 }
