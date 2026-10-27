@@ -15,6 +15,7 @@ public class CardDto {
     private Integer id;
     private String name;
     private String description;
+    private Integer category_id;
     private String location;
     private String destination;
     private String picture;

@@ -31,10 +31,13 @@ public class Card {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "location")
+    @Column(name = "category_id")
+    private Integer categoryId;
+
+    @Column(name = "location", nullable = false)
     private String location;
 
-    @Column(name = "destination")
+    @Column(name = "destination", nullable = false)
     private String destination;
 
     @Column(name = "picture")
