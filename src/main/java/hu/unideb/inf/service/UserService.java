@@ -7,6 +7,7 @@ import hu.unideb.inf.exceptions.UsernameAlreadyTakenException;
 import hu.unideb.inf.mapper.EntityMapper;
 import hu.unideb.inf.model.entity.User;
 import hu.unideb.inf.model.dto.UserDto;
+import hu.unideb.inf.model.dto.ProfileUpdateRequest;
 import hu.unideb.inf.model.dto.LoginRequest;
 import hu.unideb.inf.repository.UserRepository;
 import org.springframework.context.MessageSource;
@@ -69,7 +70,7 @@ public class UserService {
         return mapper.userToDto(findUserOrThrow(userId));
     }
 
-    public UserDto updateProfile(Integer id, UserDto dto) {
+    public UserDto updateProfile(Integer id, ProfileUpdateRequest dto) {
         User user = findUserOrThrow(id);
 
         if (dto.getUsername() != null
@@ -124,11 +125,11 @@ public class UserService {
     }
 
     public String login(LoginRequest request) {
-        Optional<User> userOpt = userRepository.findByUsername(request.usernameOrEmail());
+        Optional<User> userOpt = userRepository.findByUsername(request.getUsernameOrEmail());
         if (userOpt.isEmpty()) {
-            userOpt = userRepository.findByEmail(request.usernameOrEmail());
+            userOpt = userRepository.findByEmail(request.getUsernameOrEmail());
         }
-        if (userOpt.isEmpty() || !passwordEncoder.matches(request.password(), userOpt.get().getPasswordHash())) {
+        if (userOpt.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOpt.get().getPasswordHash())) {
             throw new IncorrectPasswordException("Invalid username or password.");
         }
         User user = userOpt.get();
