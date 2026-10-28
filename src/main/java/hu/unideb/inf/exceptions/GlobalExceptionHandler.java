@@ -28,6 +28,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ErrorResponse("USER_NOT_FOUND", ex.getMessage());
     }
 
+    @ExceptionHandler(CardNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleCardNotFound(CardNotFoundException ex) {
+        return new ErrorResponse("CARD_NOT_FOUND", ex.getMessage());
+    }
+
+    @ExceptionHandler(TripNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleTripNotFound(TripNotFoundException ex) {
+        return new ErrorResponse("TRIP_NOT_FOUND", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidNValueException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidCardCount(InvalidNValueException ex) {
+        return new ErrorResponse("INVALID_N_VALUE", ex.getMessage());
+    }
+
     @ExceptionHandler(UsernameAlreadyTakenException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleUsernameAlreadyTaken(UsernameAlreadyTakenException ex) {

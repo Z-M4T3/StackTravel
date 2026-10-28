@@ -42,10 +42,10 @@ public class TripService {
         this.mapper = mapper;
     }
 
-    public TripDto create(TripDto dto) {
-        User user = userRepository.findById(dto.getUserId())
+    public TripDto create(Integer userId, TripDto dto) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(
-                        message("user.not-found", dto.getUserId())));
+                        message("user.not-found", userId)));
 
         Card card = cardRepository.findById(dto.getCardId())
                 .orElseThrow(() -> new CardNotFoundException(
@@ -64,8 +64,8 @@ public class TripService {
     }
 
     @Transactional(readOnly = true)
-    public TripDto getById(Integer id) {
-        return mapper.tripToDto(findTrip(id));
+    public TripDto getById(Integer id, Integer userId) {
+        return mapper.tripToDto(findTrip(id, userId));
     }
 
     @Transactional(readOnly = true)
@@ -78,12 +78,12 @@ public class TripService {
                 .toList();
     }
 
-    public void delete(Integer id) {
-        tripRepository.delete(findTrip(id));
+    public void delete(Integer id, Integer userId) {
+        tripRepository.delete(findTrip(id, userId));
     }
 
-    private Trip findTrip(Integer id) {
-        return tripRepository.findById(id)
+    private Trip findTrip(Integer id, Integer userId) {
+        return tripRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new TripNotFoundException(
                         message("trip.not-found", id)));
     }
@@ -92,4 +92,34 @@ public class TripService {
         return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
 
+    public TripDto update(TripDto dto) {
+        if (dto.getId() == null) {
+            throw new IllegalArgumentException(message("trip.id.required"));
+        }
+
+        Trip trip = findTrip(dto.getId());
+
+        if (dto.getIndex() != null) {
+            trip.setIndex(dto.getIndex());
+        }
+
+        if (dto.getUserId() != null) {
+            User user = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new UserNotFoundException(
+                            message("user.not-found", dto.getUserId())));
+            trip.setUser(user);
+        }
+
+        if (dto.getCardId() != null) {
+            Card card = cardRepository.findById(dto.getCardId())
+                    .orElseThrow(() -> new CardNotFoundException(
+                            message("card.not-found", dto.getCardId())));
+            trip.setCard(card);
+        }
+
+        // createdAt nem módosítható (updatable = false), ezért a DTO-ból nem is használjuk
+
+        Trip saved = tripRepository.save(trip);
+        return mapper.tripToDto(saved);
+    }
 }
