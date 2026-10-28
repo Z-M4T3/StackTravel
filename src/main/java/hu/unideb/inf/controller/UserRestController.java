@@ -1,6 +1,8 @@
 package hu.unideb.inf.controller;
 
 import hu.unideb.inf.model.dto.LoginRequest;
+import hu.unideb.inf.model.dto.ChangePasswordRequest;
+import hu.unideb.inf.model.dto.ProfileUpdateRequest;
 import hu.unideb.inf.model.dto.UserDto;
 import hu.unideb.inf.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -48,27 +50,27 @@ public class UserRestController {
 
     @PatchMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
-    public UserDto updateProfile(@AuthenticationPrincipal Jwt jwt, @RequestBody UserDto request) {
+    public UserDto updateProfile(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ProfileUpdateRequest request) {
         return userService.updateProfile(Integer.valueOf(Objects.requireNonNull(jwt.getSubject())), request);
     }
 
-    @PostMapping("/password-reset")
+    @PostMapping(value = "/password-reset", consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String requestPasswordReset(
-            @Valid @RequestBody String email) {
+    public String requestPasswordReset(@RequestBody String email) {
         return userService.requestPasswordReset(email);
     }
 
-    @PostMapping("/password-reset/confirm")
+    @PostMapping(value = "/password-reset/confirm", consumes = MediaType.TEXT_PLAIN_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetPassword(@RequestParam String token, @RequestBody UserDto request) {
-        userService.resetPassword(token, request.getNewPassword());
+    public void resetPassword(@RequestParam String token, @RequestBody String newPassword) {
+        userService.resetPassword(token, newPassword);
     }
 
     @PostMapping("/change-password")
     @SecurityRequirement(name = "bearerAuth")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(@AuthenticationPrincipal Jwt jwt, @RequestBody UserDto request) {
+    public void changePassword(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ChangePasswordRequest request) {
         userService.changePassword(Integer.valueOf(Objects.requireNonNull(jwt.getSubject())),
                 request.getPassword(), request.getNewPassword());
     }
