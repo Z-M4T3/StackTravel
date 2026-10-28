@@ -1,0 +1,116 @@
+name: StackTravel CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Java 25
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Read build configuration
+        run: |
+          source .deploy.conf
+          printf 'JAVA_VERSION=%s\nJAVA_DISTRO=%s\n' "$JAVA_VERSION" "$JAVA_DISTRO" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: ${{ env.JAVA_DISTRO }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Build JAR
+        run: |
+          source .deploy.conf
+          if [[ -n "$TEST_CMD" && "$TEST_CMD" != "none" ]]; then
+            bash -eo pipefail -c "$TEST_CMD"
+          fi
+          bash -eo pipefail -c "$BUILD_CMD"
+          mkdir -p dist_artifact
+          install -m 0644 "$ARTIFACT_PATH" dist_artifact/stacktravel.jar
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: stacktravel-backend
+          path: dist_artifact/stacktravel.jar
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    name: Deploy to oracle1
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    environment: production
+    concurrency:
+      group: stacktravel-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: stacktravel-backend
+          path: dist_artifact
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          if [[ -z "$SSH_KEY" ]]; then
+            echo 'Missing SSH_KEY repository or production environment secret.' >&2
+            exit 1
+          fi
+          source .deploy.conf
+          install -d -m 0700 "$HOME/.ssh"
+          printf '%s\n' "$SSH_KEY" > "$HOME/.ssh/id_ed25519"
+          chmod 0600 "$HOME/.ssh/id_ed25519"
+          printf '%s %s\n' "$SSH_HOST" "$SSH_HOST_KEY" > "$HOME/.ssh/known_hosts"
+          cat > "$HOME/.ssh/config" <<EOF
+          Host deploy-server
+              HostName $SSH_HOST
+              User $SSH_USER
+              IdentityFile ~/.ssh/id_ed25519
+              IdentitiesOnly yes
+              StrictHostKeyChecking yes
+              BatchMode yes
+              ConnectTimeout 10
+          EOF
+          chmod 0600 "$HOME/.ssh/config"
+
+      - name: Upload and deploy
+        env:
+          ENV_CONTENT: ${{ secrets.ENV }}
+        run: |
+          if [[ "$(git ls-remote origin refs/heads/main | cut -f1)" != "$GITHUB_SHA" ]]; then
+            echo 'A newer commit is already on main; skipping this deployment.'
+            exit 0
+          fi
+          STAGE_DIR=$(ssh deploy-server 'mktemp -d /home/stacktravel-deploy/deploy.XXXXXXXX')
+          [[ "$STAGE_DIR" =~ ^/home/stacktravel-deploy/deploy\.[[:alnum:]]+$ ]]
+          cleanup() { ssh deploy-server "rm -rf -- '$STAGE_DIR'"; }
+          trap cleanup EXIT
+          scp dist_artifact/stacktravel.jar deploy/deploy.sh .deploy.conf "deploy-server:$STAGE_DIR/"
+          if [[ -n "$ENV_CONTENT" ]]; then
+            printf '%s\n' "$ENV_CONTENT" | ssh deploy-server "umask 077; cat > '$STAGE_DIR/deploy.env'"
+          fi
+          ssh deploy-server "bash '$STAGE_DIR/deploy.sh' '$STAGE_DIR'"
+
+      - name: Remove SSH key
+        if: always()
+        run: rm -f "$HOME/.ssh/id_ed25519"
