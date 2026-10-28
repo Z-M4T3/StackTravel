@@ -92,10 +92,4 @@ public class TripService {
         return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
 
-    public TripDto update(TripDto dto) {
-
-
-        Trip saved = tripRepository.save(trip);
-        return mapper.tripToDto(saved);
-    }
 }

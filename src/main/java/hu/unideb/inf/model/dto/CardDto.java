@@ -15,9 +15,11 @@ public class CardDto {
     private Integer id;
     private String name;
     private String description;
-    private Integer category_id;
+    private String category;
     private String location;
     private String destination;
+    private String webpage;
+    private String duration;
     private String picture;
     private LocalDateTime createdAt;
 }
