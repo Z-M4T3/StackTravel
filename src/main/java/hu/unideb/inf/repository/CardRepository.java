@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface CardRepository extends JpaRepository<Card, Integer> {
-    List<Card> findByCategoryId(Integer categoryId);
+    List<Card> findByCategory(String category);
 }
