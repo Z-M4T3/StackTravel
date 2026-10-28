@@ -1,0 +1,32 @@
+[Unit]
+Description=StackTravel FastAPI card generator
+Wants=network-online.target
+After=network-online.target
+Before=stacktravel.service
+PartOf=stacktravel.service
+ConditionPathExists=/opt/stacktravel/backend/ai/asd.py
+
+[Service]
+Type=simple
+User=stacktravel-deploy
+Group=stacktravel-deploy
+WorkingDirectory=/opt/stacktravel/backend/ai
+EnvironmentFile=/opt/stacktravel/backend/.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStartPre=/opt/stacktravel/ai-venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir --requirement /opt/stacktravel/backend/ai/requirements.txt
+ExecStart=/opt/stacktravel/ai-venv/bin/python /opt/stacktravel/backend/ai/asd.py
+ExecStartPost=/usr/bin/curl --fail --silent --show-error --output /dev/null --retry 30 --retry-connrefused --retry-delay 2 --retry-max-time 90 --max-time 3 http://127.0.0.1:8090/openapi.json
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=180
+TimeoutStopSec=30
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/stacktravel/ai-venv
+SyslogIdentifier=stacktravel-ai
+
+[Install]
+WantedBy=multi-user.target

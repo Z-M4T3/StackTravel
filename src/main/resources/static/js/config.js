@@ -1,5 +1,5 @@
 export const CONFIG = {
-  API_BASE_URL: 'http://localhost:8080/api',
+  API_BASE_URL: '/api',
   REQUEST_TIMEOUT: 12000,
   STORAGE_KEYS: {
     TRIPS: 'stacktravel_trips',

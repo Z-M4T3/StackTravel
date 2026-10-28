@@ -1,0 +1,224 @@
+name: Universal CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  # ============================================================================
+  # 1. BUILD ÉS TESZTELÉS
+  # ============================================================================
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kód letöltése
+        uses: actions/checkout@v4
+
+      - name: Konfiguráció beolvasása (.deploy.conf)
+        run: |
+          if [ ! -f .deploy.conf ]; then
+            echo "HIBA: A .deploy.conf fájl hiányzik a projekt gyökeréből!"
+            exit 1
+          fi
+          python3 -c "
+          import os
+          with open('.deploy.conf', encoding='utf-8') as f:
+              for line in f:
+                  line = line.strip()
+                  if line and not line.startswith('#') and '=' in line:
+                      k, v = line.split('=', 1)
+                      k = k.strip()
+                      v = v.strip('\"\' ')
+                      with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
+                          env.write(f'{k}={v}\n')
+          "
+
+      # --- Futtatókörnyezetek előkészítése ---
+      - name: Python előkészítése
+        if: env.PROJECT_TYPE == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION || '3.12' }}
+          cache: 'pip'
+          cache-dependency-path: '**/requirements.txt'
+
+      - name: Node.js előkészítése
+        if: env.PROJECT_TYPE == 'node' || env.PROJECT_TYPE == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION || '20' }}
+          cache: 'npm'
+
+      - name: Java előkészítése
+        if: env.PROJECT_TYPE == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRO || 'temurin' }}
+          java-version: ${{ env.JAVA_VERSION || '21' }}
+          cache: ${{ hashFiles('pom.xml') != '' && 'maven' || hashFiles('build.gradle*', 'settings.gradle*') != '' && 'gradle' || '' }}
+
+      - name: .NET előkészítése
+        if: env.PROJECT_TYPE == 'dotnet' || env.PROJECT_TYPE == 'csharp'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION || '8.0' }}
+
+      # --- Függőségek telepítése ---
+      - name: Függőségek telepítése
+        run: |
+          if [ "$PROJECT_TYPE" = "python" ]; then
+            python -m pip install --upgrade pip
+            if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+            if [ -f api/requirements.txt ]; then pip install -r api/requirements.txt; fi
+            python -m compileall . || true
+          elif [ "$PROJECT_TYPE" = "node" ] || [ "$PROJECT_TYPE" = "javascript" ]; then
+            if [ -f package.json ]; then npm ci || npm install; fi
+          elif [ "$PROJECT_TYPE" = "java" ]; then
+            if [ -f gradlew ]; then chmod +x gradlew; fi
+            if [ -f mvnw ]; then chmod +x mvnw; fi
+          fi
+
+      # --- Tesztek futtatása ---
+      - name: Tesztek futtatása
+        run: |
+          if [ "$TEST_CMD" != "none" ] && [ -n "$TEST_CMD" ]; then
+            echo "--> Tesztek indítása: $TEST_CMD"
+            eval "$TEST_CMD"
+          else
+            echo "--> Tesztek kihagyva a konfiguráció alapján."
+          fi
+
+      # --- Build lépés (ha meg van adva BUILD_CMD) ---
+      - name: Projekt fordítása (Build)
+        if: env.BUILD_CMD != '' && env.BUILD_CMD != 'none'
+        run: |
+          echo "--> Build parancs indítása: $BUILD_CMD"
+          eval "$BUILD_CMD"
+
+      # --- Lefordított binárisok / csomagok elkülönítése ---
+      - name: Build artifactok előkészítése
+        run: |
+          mkdir -p dist_artifact
+          if [ -n "$ARTIFACT_PATH" ] && [ -e "$ARTIFACT_PATH" ]; then
+            echo "--> Artifact mentése a deployhoz: $ARTIFACT_PATH"
+            cp -r $ARTIFACT_PATH dist_artifact/
+          fi
+
+      - name: Forráskód becsomagolása
+        run: |
+          tar --exclude='.git' \
+              --exclude='.github' \
+              --exclude='__pycache__' \
+              --exclude='.venv' \
+              --exclude='node_modules' \
+              --exclude='tests' \
+              --exclude='dist_artifact' \
+              --exclude='release.tar.gz' \
+              -czf /tmp/release.tar.gz .
+          mv /tmp/release.tar.gz ./release.tar.gz
+          ls -lh release.tar.gz
+
+      - name: Fájlok átadása a Deploy jobnak
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-package
+          path: |
+            release.tar.gz
+            dist_artifact/
+          if-no-files-found: ignore
+
+  # ============================================================================
+  # 2. ÉLESÍTÉS (DEPLOY)
+  # ============================================================================
+  deploy:
+    name: Deploy to Server
+    needs: test
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kód letöltése
+        uses: actions/checkout@v4
+
+      - name: Konfiguráció beolvasása (.deploy.conf)
+        run: |
+          python3 -c "
+          import os
+          with open('.deploy.conf', encoding='utf-8') as f:
+              for line in f:
+                  line = line.strip()
+                  if line and not line.startswith('#') and '=' in line:
+                      k, v = line.split('=', 1)
+                      k = k.strip()
+                      v = v.strip('\"\' ')
+                      with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
+                          env.write(f'{k}={v}\n')
+          "
+
+      - name: Csomagok letöltése a test job-ból
+        uses: actions/download-artifact@v4
+        with:
+          name: release-package
+          path: .
+
+      # --- SSH környezet felépítése SSH_KEY és SSH_CONFIG alapján ---
+      - name: SSH kapcsolat előkészítése
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          SSH_CFG_INPUT="${{ secrets.SSH_CONFIG }}"
+
+          if echo "$SSH_CFG_INPUT" | grep -q "Host"; then
+            echo "$SSH_CFG_INPUT" > ~/.ssh/config
+          else
+            USER_HOST=$(echo "$SSH_CFG_INPUT" | cut -d':' -f1)
+            USER_NAME=$(echo "$USER_HOST" | cut -d'@' -f1)
+            HOST_NAME=$(echo "$USER_HOST" | cut -d'@' -f2)
+            PORT=$(echo "$SSH_CFG_INPUT" | grep -o ':[0-9]*$' | tr -d ':' || echo "")
+            if [ -z "$PORT" ]; then PORT=22; fi
+
+            cat <<EOF > ~/.ssh/config
+          Host deploy-server
+              HostName $HOST_NAME
+              User $USER_NAME
+              Port $PORT
+              IdentityFile ~/.ssh/id_rsa
+              StrictHostKeyChecking accept-new
+          EOF
+          fi
+          chmod 600 ~/.ssh/config
+
+      # --- Csomagok és scriptek átvitele ---
+      - name: Fájlok átvitele a szerverre
+        run: |
+          STAGE_DIR="/tmp/deploy-${{ env.PROJECT_NAME }}"
+          echo "--> Ideiglenes könyvtár előkészítése a szerveren: $STAGE_DIR"
+          ssh deploy-server "rm -rf $STAGE_DIR && mkdir -p $STAGE_DIR"
+
+          echo "--> Csomag, deploy script és config másolása..."
+          scp release.tar.gz deploy/deploy.sh .deploy.conf deploy-server:$STAGE_DIR/
+
+          if [ -d "dist_artifact" ] && [ "$(ls -A dist_artifact)" ]; then
+            echo "--> Build artifactok másolása..."
+            scp -r dist_artifact/* deploy-server:$STAGE_DIR/
+          fi
+
+          if [ -n "${{ secrets.ENV }}" ]; then
+            echo "--> ENV secret biztonságos továbbítása..."
+            echo "${{ secrets.ENV }}" | ssh deploy-server "cat > $STAGE_DIR/deploy.env && chmod 600 $STAGE_DIR/deploy.env"
+          fi
+
+      # --- Deploy script futtatása a célgépen ---
+      - name: Deploy futtatása a szerveren
+        run: |
+          STAGE_DIR="/tmp/deploy-${{ env.PROJECT_NAME }}"
+          echo "--> deploy.sh indítása..."
+          ssh deploy-server "chmod +x $STAGE_DIR/deploy.sh && $STAGE_DIR/deploy.sh $STAGE_DIR"
+          echo "--> Ideiglenes könyvtár takarítása..."
+          ssh deploy-server "rm -rf $STAGE_DIR"
