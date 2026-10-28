@@ -92,4 +92,34 @@ public class TripService {
         return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
 
+    public TripDto update(TripDto dto) {
+        if (dto.getId() == null) {
+            throw new IllegalArgumentException(message("trip.id.required"));
+        }
+
+        Trip trip = findTrip(dto.getId());
+
+        if (dto.getIndex() != null) {
+            trip.setIndex(dto.getIndex());
+        }
+
+        if (dto.getUserId() != null) {
+            User user = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new UserNotFoundException(
+                            message("user.not-found", dto.getUserId())));
+            trip.setUser(user);
+        }
+
+        if (dto.getCardId() != null) {
+            Card card = cardRepository.findById(dto.getCardId())
+                    .orElseThrow(() -> new CardNotFoundException(
+                            message("card.not-found", dto.getCardId())));
+            trip.setCard(card);
+        }
+
+        // createdAt nem módosítható (updatable = false), ezért a DTO-ból nem is használjuk
+
+        Trip saved = tripRepository.save(trip);
+        return mapper.tripToDto(saved);
+    }
 }
