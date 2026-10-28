@@ -92,22 +92,11 @@ public class TripService {
         return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
 
-    public TripDto update(TripDto dto) {
-        if (dto.getId() == null) {
-            throw new IllegalArgumentException(message("trip.id.required"));
-        }
-
-        Trip trip = findTrip(dto.getId());
+    public TripDto update(Integer id, Integer userId, TripDto dto) {
+        Trip trip = findTrip(id, userId);
 
         if (dto.getIndex() != null) {
             trip.setIndex(dto.getIndex());
-        }
-
-        if (dto.getUserId() != null) {
-            User user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> new UserNotFoundException(
-                            message("user.not-found", dto.getUserId())));
-            trip.setUser(user);
         }
 
         if (dto.getCardId() != null) {

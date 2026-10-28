@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -42,6 +43,12 @@ public class TripRestController {
     @GetMapping("/{id}")
     public TripDto getById(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer id) {
         return tripService.getById(id, Integer.valueOf(Objects.requireNonNull(jwt.getSubject())));
+    }
+
+    @PutMapping("/{id}")
+    public TripDto update(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer id,
+                          @Valid @RequestBody TripDto request) {
+        return tripService.update(id, Integer.valueOf(Objects.requireNonNull(jwt.getSubject())), request);
     }
 
     @DeleteMapping("/{id}")
