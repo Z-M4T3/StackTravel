@@ -1,11 +1,13 @@
 package hu.unideb.inf.service;
 
 import hu.unideb.inf.exceptions.EmailAlreadyTakenException;
+import hu.unideb.inf.exceptions.IncorrectPasswordException;
 import hu.unideb.inf.exceptions.UserNotFoundException;
 import hu.unideb.inf.exceptions.UsernameAlreadyTakenException;
 import hu.unideb.inf.mapper.EntityMapper;
 import hu.unideb.inf.model.entity.User;
 import hu.unideb.inf.model.dto.UserDto;
+import hu.unideb.inf.model.dto.LoginRequest;
 import hu.unideb.inf.repository.UserRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -25,19 +27,22 @@ public class UserService {
     private final MessageSource messageSource;
     private final EntityMapper mapper;
     private final PasswordManagementService passwordManagementService;
+    private final JwtService jwtService;
 
     public UserService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             MessageSource messageSource,
             EntityMapper mapper,
-            PasswordManagementService passwordManagementService
+            PasswordManagementService passwordManagementService,
+            JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.messageSource = messageSource;
         this.mapper = mapper;
         this.passwordManagementService = passwordManagementService;
+        this.jwtService = jwtService;
     }
 
     public UserDto register(UserDto dto) {
@@ -57,6 +62,11 @@ public class UserService {
 
         User saved = userRepository.save(user);
         return mapper.userToDto(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public UserDto getProfile(Integer userId) {
+        return mapper.userToDto(findUserOrThrow(userId));
     }
 
     public UserDto updateProfile(Integer id, UserDto dto) {
@@ -113,23 +123,19 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public Optional<UserDto> authenticate(UserDto dto) {
-        Optional<User> userOpt = userRepository.findByUsername(dto.getUsernameOrEmail());
+    public String login(LoginRequest request) {
+        Optional<User> userOpt = userRepository.findByUsername(request.usernameOrEmail());
         if (userOpt.isEmpty()) {
-            userOpt = userRepository.findByEmail(dto.getUsernameOrEmail());
+            userOpt = userRepository.findByEmail(request.usernameOrEmail());
         }
-
-        if (userOpt.isEmpty()
-                || !passwordEncoder.matches(dto.getPassword(), userOpt.get().getPasswordHash())) {
-            return Optional.empty();
+        if (userOpt.isEmpty() || !passwordEncoder.matches(request.password(), userOpt.get().getPasswordHash())) {
+            throw new IncorrectPasswordException("Invalid username or password.");
         }
-
         User user = userOpt.get();
         user.setLastLogin(LocalDateTime.now());
-
-        return Optional.of(mapper.userToDto(userRepository.save(user)));
+        userRepository.save(user);
+        return jwtService.issueToken(user.getId());
     }
-
 
     //helpers
     private String message(String code, Object... arguments) {
