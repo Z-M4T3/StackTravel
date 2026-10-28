@@ -1,0 +1,30 @@
+[Unit]
+Description=StackTravel Spring Boot backend
+Wants=network-online.target stacktravel-ai.service
+After=network-online.target stacktravel-ai.service
+ConditionPathExists=/opt/stacktravel/backend/stacktravel.jar
+
+[Service]
+Type=simple
+User=stacktravel-deploy
+Group=stacktravel-deploy
+WorkingDirectory=/opt/stacktravel/backend
+EnvironmentFile=/etc/stacktravel/stacktravel.env
+EnvironmentFile=-/opt/stacktravel/backend/.env
+ExecStartPre=/usr/bin/rsync --archive --delete --exclude=.well-known/ /opt/stacktravel/backend/src/main/resources/static/ /var/www/stacktravel/
+ExecStart=/usr/lib/jvm/java-25-openjdk-amd64/bin/java -Xms64m -Xmx256m -jar /opt/stacktravel/backend/stacktravel.jar --server.address=127.0.0.1 --server.port=8081 --server.forward-headers-strategy=native --spring.jpa.show-sql=false
+ExecStartPost=/usr/bin/curl --fail --silent --show-error --output /dev/null --retry 120 --retry-connrefused --retry-delay 2 --retry-max-time 240 --max-time 3 http://127.0.0.1:8081/v3/api-docs
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=300
+TimeoutStopSec=45
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/stacktravel
+SyslogIdentifier=stacktravel
+
+[Install]
+WantedBy=multi-user.target
