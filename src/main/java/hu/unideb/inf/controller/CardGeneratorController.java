@@ -2,6 +2,7 @@ package hu.unideb.inf.controller;
 
 import hu.unideb.inf.model.dto.AICardResponseDto;
 import hu.unideb.inf.service.CardGeneratorService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/cards")
 @Validated
 public class CardGeneratorController {
