@@ -43,12 +43,12 @@ public class CardService {
     }
 
     @Transactional(readOnly = true)
-    public List<CardDto> getNCardsWithCategory(Integer n, Integer categoryId) {
+    public List<CardDto> getNCardsWithCategory(Integer n, String category) {
         if (n == null || n < 1) {
             throw new InvalidNValueException(
                     message("card.n-value.invalid", n));
         }
-        return cardRepository.findByCategoryId(categoryId).stream()
+        return cardRepository.findByCategory(category).stream()
                 .limit(n)
                 .map(mapper::cardToDto)
                 .toList();

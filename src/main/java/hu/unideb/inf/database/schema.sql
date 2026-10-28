@@ -23,9 +23,11 @@ CREATE TABLE IF NOT EXISTS cards (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT NULL,
-    category_id INT NULL,
+    category VARCHAR(255) NULL,
     location VARCHAR(255) NOT NULL,
     destination VARCHAR(255) NOT NULL,
+    webpage VARCHAR(255) NULL,
+    duration VARCHAR(255) NULL,
     picture VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cards_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
@@ -42,7 +44,6 @@ CREATE TABLE IF NOT EXISTS trips (
 );
 
 CREATE TABLE IF NOT EXISTS categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) PRIMARY KEY,
     photo VARCHAR(255) NOT NULL
 );

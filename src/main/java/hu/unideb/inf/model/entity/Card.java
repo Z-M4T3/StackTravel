@@ -31,14 +31,20 @@ public class Card {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "category_id")
-    private Integer categoryId;
+    @Column(name = "category")
+    private String category;
 
     @Column(name = "location", nullable = false)
     private String location;
 
     @Column(name = "destination", nullable = false)
     private String destination;
+
+    @Column(name = "webpage")
+    private String webpage;
+
+    @Column(name = "duration")
+    private String duration;
 
     @Column(name = "picture")
     private String picture;
