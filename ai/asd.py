@@ -27,13 +27,17 @@ def generate_cards(destination, category, count) -> Activites:
         system_message = f'''Utazási programajánló vagy. A megadott úticélhoz pontosan
                     {count} különböző {category} katergóriájú programot ajánlj).
                     Csak valóban létező helyeket adj meg. Ha nem vagy biztos valamiben,
-                    hagyd null-on, ne találj ki adatot. Magyarul válaszolj.'''
+                    hagyd null-on, ne találj ki adatot. Magyarul válaszolj.
+                    Ha legeneráltad a weboldal linket és maps linket, nyisd meg őket
+                    és ha helytelen adatot kapsz, generálj újra. Ezt minden generáláskor ismételd el!'''
     else:
         system_message = f'''Utazási programajánló vagy. A megadott úticélhoz pontosan
                             {count} különböző programot ajánlj (pl. látnivalók, gasztronómia, koncertek, múzeumok,
                             helyi nevezetességek, kocsmák, különlegességek stb.).
                             Csak valóban létező helyeket adj meg. Ha nem vagy biztos valamiben,
-                            hagyd null-on, ne találj ki adatot. Magyarul válaszolj.'''
+                            hagyd null-on, ne találj ki adatot. Magyarul válaszolj.
+                            Ha legeneráltad a weboldal linket és maps linket, nyisd meg őket
+                            és ha helytelen adatot kapsz, generálj újra. Ezt minden generáláskor ismételd el!'''
 
     messages = [
         SystemMessage(content=(system_message)),
