@@ -54,6 +54,21 @@ public class CardService {
                 .toList();
     }
 
+    public CardDto updateCard(Integer id, CardDto dto) {
+        Card card = findCardOrThrow(id);
+
+        card.setName(dto.getName());
+        card.setCategory(dto.getCategory());
+        card.setLocation(dto.getLocation());
+        card.setDestination(dto.getDestination());
+        card.setWebpage(dto.getWebpage());
+        card.setDuration(dto.getDuration());
+        card.setPicture(dto.getPicture());
+
+        Card saved = cardRepository.save(card);
+        return mapper.cardToDto(saved);
+    }
+
     public void deleteById(Integer id) {
         Card card = findCardOrThrow(id);
         cardRepository.delete(card);
