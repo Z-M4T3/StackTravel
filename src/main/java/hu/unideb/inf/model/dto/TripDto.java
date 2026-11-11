@@ -20,11 +20,15 @@ import java.util.Date;
 public class TripDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id;
+
     private String public_key;
+
     @Schema(example = "2026-11-11")
     private Date start_date;
+
     @Schema(example = "2026-11-11")
     private Date end_date;
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createdAt;
 }
