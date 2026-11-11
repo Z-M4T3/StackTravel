@@ -35,25 +35,20 @@ public class TripRestController {
         return tripService.create(Integer.valueOf(Objects.requireNonNull(jwt.getSubject())), request);
     }
 
-    @GetMapping
-    public List<TripDto> getAll(@AuthenticationPrincipal Jwt jwt) {
-        return tripService.getAllByUser(Integer.valueOf(Objects.requireNonNull(jwt.getSubject())));
-    }
-
     @GetMapping("/{id}")
     public TripDto getById(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer id) {
-        return tripService.getById(id, Integer.valueOf(Objects.requireNonNull(jwt.getSubject())));
+        return tripService.getById(id);
     }
 
     @PutMapping("/{id}")
     public TripDto update(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer id,
                           @Valid @RequestBody TripDto request) {
-        return tripService.update(id, Integer.valueOf(Objects.requireNonNull(jwt.getSubject())), request);
+        return tripService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer id) {
-        tripService.delete(id, Integer.valueOf(Objects.requireNonNull(jwt.getSubject())));
+        tripService.delete(id);
     }
 }

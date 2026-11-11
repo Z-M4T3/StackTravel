@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "trips")
@@ -29,24 +30,14 @@ public class Trip {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "indx", nullable = false)
-    private int index = 0;
+    @Column(name="public_key", unique = true)
+    private String public_key;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "user_id",
-            nullable = false,
-            foreignKey = @ForeignKey(name = "fk_trips_user")
-    )
-    private User user;
+    @Column(name="start_date")
+    private Date start_date;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "card_id",
-            nullable = false,
-            foreignKey = @ForeignKey(name = "fk_trips_card")
-    )
-    private Card card;
+    @Column(name="end_date")
+    private Date end_date;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

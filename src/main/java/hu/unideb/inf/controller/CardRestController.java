@@ -29,7 +29,7 @@ public class CardRestController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CardDto create(@Valid @RequestBody CardDto request) {
-        return cardService.createCard(request);
+        return cardService.create(request);
     }
 
     @GetMapping("/{id}")

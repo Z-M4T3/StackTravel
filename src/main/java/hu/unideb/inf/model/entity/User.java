@@ -39,17 +39,17 @@ public class User {
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
+    @Column(name = "picture")
+    private String picture;
+
     @Column(name = "last_email")
     private String lastEmail;
-
-    @Column(name = "last_login")
-    private LocalDateTime lastLogin;
 
     @Column(name = "last_email_change")
     private LocalDateTime lastEmailChange;
 
-    @Column(name = "picture")
-    private String picture;
+    @Column(name = "last_login")
+    private LocalDateTime lastLogin;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

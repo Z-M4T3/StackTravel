@@ -21,9 +21,10 @@ public interface EntityMapper {
     @Mapping(target = "id", ignore = true)
     User dtoToUser(UserDto dto);
 
-    @Mapping(source = "user.id", target = "userId")
-    @Mapping(source = "card.id", target = "cardId")
     TripDto tripToDto(Trip trip);
+
+    @Mapping(target = "id", ignore = true)
+    Trip dtoToTrip(TripDto dto);
 
     CardDto cardToDto(Card card);
 

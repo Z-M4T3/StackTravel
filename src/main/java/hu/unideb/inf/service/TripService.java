@@ -24,20 +24,17 @@ public class TripService {
 
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
-    private final CardRepository cardRepository;
     private final MessageSource messageSource;
     private final EntityMapper mapper;
 
     public TripService(
             TripRepository tripRepository,
             UserRepository userRepository,
-            CardRepository cardRepository,
             MessageSource messageSource,
             EntityMapper mapper
     ) {
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
-        this.cardRepository = cardRepository;
         this.messageSource = messageSource;
         this.mapper = mapper;
     }
@@ -47,43 +44,22 @@ public class TripService {
                 .orElseThrow(() -> new UserNotFoundException(
                         message("user.not-found", userId)));
 
-        Card card = cardRepository.findById(dto.getCardId())
-                .orElseThrow(() -> new CardNotFoundException(
-                        message("card.not-found", dto.getCardId())));
-
-        Trip trip = new Trip();
-        trip.setUser(user);
-        trip.setCard(card);
-        if (dto.getIndex() != null) {
-            trip.setIndex(dto.getIndex());
-        }
-        // createdAt-ot a @PrePersist állítja be
-
+        Trip trip = mapper.dtoToTrip(dto);
         Trip saved = tripRepository.save(trip);
         return mapper.tripToDto(saved);
     }
 
     @Transactional(readOnly = true)
-    public TripDto getById(Integer id, Integer userId) {
-        return mapper.tripToDto(findTrip(id, userId));
+    public TripDto getById(Integer id) {
+        return mapper.tripToDto(findTrip(id));
     }
 
-    @Transactional(readOnly = true)
-    public List<TripDto> getAllByUser(Integer userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException(message("user.not-found", userId));
-        }
-        return tripRepository.findAllByUserId(userId).stream()
-                .map(mapper::tripToDto)
-                .toList();
+    public void delete(Integer id) {
+        tripRepository.delete(findTrip(id));
     }
 
-    public void delete(Integer id, Integer userId) {
-        tripRepository.delete(findTrip(id, userId));
-    }
-
-    private Trip findTrip(Integer id, Integer userId) {
-        return tripRepository.findByIdAndUserId(id, userId)
+    private Trip findTrip(Integer id) {
+        return tripRepository.findById(id)
                 .orElseThrow(() -> new TripNotFoundException(
                         message("trip.not-found", id)));
     }
@@ -92,21 +68,12 @@ public class TripService {
         return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
 
-    public TripDto update(Integer id, Integer userId, TripDto dto) {
-        Trip trip = findTrip(id, userId);
+    public TripDto update(Integer id, TripDto dto) {
+        Trip trip = findTrip(id);
 
-        if (dto.getIndex() != null) {
-            trip.setIndex(dto.getIndex());
-        }
-
-        if (dto.getCardId() != null) {
-            Card card = cardRepository.findById(dto.getCardId())
-                    .orElseThrow(() -> new CardNotFoundException(
-                            message("card.not-found", dto.getCardId())));
-            trip.setCard(card);
-        }
-
-        // createdAt nem módosítható (updatable = false), ezért a DTO-ból nem is használjuk
+        trip.setPublic_key(dto.getPublic_key());
+        trip.setStart_date(dto.getStart_date());
+        trip.setEnd_date(dto.getEnd_date());
 
         Trip saved = tripRepository.save(trip);
         return mapper.tripToDto(saved);

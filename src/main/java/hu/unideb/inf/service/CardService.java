@@ -30,7 +30,7 @@ public class CardService {
         this.messageSource = messageSource;
     }
 
-    public CardDto createCard(CardDto dto) {
+    public CardDto create(CardDto dto) {
         Card card = mapper.dtoToCard(dto);
 
         Card saved = cardRepository.save(card);
@@ -54,7 +54,7 @@ public class CardService {
                 .toList();
     }
 
-    public CardDto updateCard(Integer id, CardDto dto) {
+    public CardDto update(Integer id, CardDto dto) {
         Card card = findCardOrThrow(id);
 
         card.setName(dto.getName());
