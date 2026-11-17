@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -19,14 +20,15 @@ import java.time.LocalDateTime;
 public class TripDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id;
-    @PositiveOrZero
-    private Integer index;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Integer userId;
-    @NotNull
-    @Positive
-    @Schema(example = "1")
-    private Integer cardId;
+
+    private String publicKey;
+
+    @Schema(example = "2026-11-11")
+    private LocalDateTime startDate;
+
+    @Schema(example = "2026-11-11")
+    private LocalDateTime endDate;
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createdAt;
 }

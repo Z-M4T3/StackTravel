@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS trips (
 );
 
 
-CREATE TABLE IF NOT EXISTS trip_users (
+CREATE TABLE IF NOT EXISTS user_trips (
     user_id INT NOT NULL,
     trip_id INT NOT NULL,
     permission_level VARCHAR(255) NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS cards (
     location VARCHAR(255) NOT NULL,
     destination VARCHAR(255) NOT NULL,
     webpage VARCHAR(255) NULL,
-    duration VARCHAR(255) NULL,
+    duration INT NULL,
     picture VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cards_category FOREIGN KEY (category) REFERENCES categories(name) ON DELETE CASCADE
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS trip_cards(
     trip_id INT NOT NULL,
     card_id INT NOT NULL,
     card_day INT NOT NULL,
-    start_time DATE NULL,
+    start_time DATETIME NULL,
     duration INT NULL,
     CONSTRAINT fk_trip_cards_trip_id FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE,
     CONSTRAINT fk_trip_cards_card_id FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
