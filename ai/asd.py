@@ -14,7 +14,7 @@ class Card(BaseModel):
     category: str = Field(description="Kategorizáld egy szóval a programot (pl: étterem, látványosság, koncert, művészet, kocsma, múzeum stb.)")
     location: str = Field(description="Google Maps link, ahol a program található")
     webpage: str | None = Field(default=None, description="A programot nyújtó szolgáltató hivatalos weboldala vagy közösségi média oldala")
-    duration: str = Field(description="A program időtartamának becsült ideje")
+    duration: int = Field(description="A program időtartamának becsült ideje órában")
 
 class Activites(BaseModel):
     activities: list[Card] = Field(description="Egymástól különböző programok")

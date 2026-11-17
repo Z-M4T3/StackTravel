@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "trip_cards")
@@ -31,7 +30,7 @@ public class TripCard {
     private Integer cardDay;
 
     @Column(name = "start_time")
-    private Date start_time;
+    private LocalDateTime startTime;
 
     @Column(name = "duration")
     private Integer duration;

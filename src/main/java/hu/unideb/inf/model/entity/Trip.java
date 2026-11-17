@@ -31,13 +31,13 @@ public class Trip {
     private Integer id;
 
     @Column(name="public_key", unique = true)
-    private String public_key;
+    private String publicKey;
 
     @Column(name="start_date")
-    private Date start_date;
+    private LocalDateTime startDate;
 
     @Column(name="end_date")
-    private Date end_date;
+    private LocalDateTime endDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

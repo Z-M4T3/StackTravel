@@ -21,13 +21,13 @@ public class TripDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id;
 
-    private String public_key;
+    private String publicKey;
 
     @Schema(example = "2026-11-11")
-    private Date start_date;
+    private LocalDateTime startDate;
 
     @Schema(example = "2026-11-11")
-    private Date end_date;
+    private LocalDateTime endDate;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createdAt;

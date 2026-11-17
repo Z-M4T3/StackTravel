@@ -37,6 +37,18 @@ public class CardService {
         return mapper.cardToDto(saved);
     }
 
+    // Duplikátum jelenleg bent marad
+    @Transactional
+    public Card getOrCreateEntity(Integer cardId, CardDto newCard) {
+        if (cardId != null) {
+            return findCardOrThrow(cardId);
+        }
+        if (newCard == null) {
+            throw new IllegalArgumentException(message("card.data-required"));
+        }
+        return cardRepository.save(mapper.dtoToCard(newCard));
+    }
+
     @Transactional(readOnly = true)
     public CardDto getById(Integer id){
         return mapper.cardToDto(findCardOrThrow(id));
@@ -74,10 +86,11 @@ public class CardService {
         cardRepository.delete(card);
     }
 
+    // helpers
     private String message(String code, Object... arguments){
         return messageSource.getMessage(code, arguments, LocaleContextHolder.getLocale());
     }
-    // helpers
+
     private Card findCardOrThrow(Integer id) {
         return cardRepository.findById(id)
                 .orElseThrow(() ->
