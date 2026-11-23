@@ -12,10 +12,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserTripDto {
     @NotNull
-    private Integer tripId;
+    private Integer userId;
 
     @NotNull
-    private Integer userId;
+    private Integer tripId;
 
     @NotBlank
     @Pattern(regexp = "OWNER|EDITOR|VIEWER")

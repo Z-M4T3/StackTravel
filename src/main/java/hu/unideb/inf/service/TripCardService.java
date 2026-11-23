@@ -22,6 +22,7 @@ import java.util.List;
 public class TripCardService {
     private final TripCardRepository tripCardRepository;
     private final TripRepository tripRepository;
+    private final CardRepository cardRepository;
     private final CardService cardService;
     private final EntityMapper mapper;
     private final MessageSource messageSource;
@@ -35,12 +36,13 @@ public class TripCardService {
             MessageSource messageSource) {
         this.tripCardRepository = tripCardRepository;
         this.tripRepository = tripRepository;
+        this.cardRepository = cardRepository;
         this.cardService = cardService;
         this.mapper = mapper;
         this.messageSource = messageSource;
     }
 
-    public TripCardDto addCardToTrip(Integer tripId, AddCardRequest req) {
+    public TripCardDto addCardToTrip(AddCardRequest req, Integer tripId) {
         Trip trip = findTripOrThrow(tripId);
 
         long days = ChronoUnit.DAYS.between(trip.getStartDate(), trip.getEndDate()) + 1;
@@ -76,26 +78,24 @@ public class TripCardService {
     }
 
     public TripCardDto updateCardInTrip(Integer tripId, Integer cardId, TripCardDto dto) {
-        TripCard tripCard = tripCardRepository.findById(new TripCard.Id(tripId, cardId))
-                .orElseThrow(() -> new TripCardNotFoundException(message("trip-card.not-found", tripId, cardId)));
+        TripCard tripCard = findTripCardOrThrow(tripId, cardId);
 
         Trip trip = tripCard.getTrip();
         long days = ChronoUnit.DAYS.between(trip.getStartDate(), trip.getEndDate()) + 1;
         if (dto.getCardDay() > days) {
-            throw new CardDayDoesntFitIntoTripException(message("card_day.doesnt-fit-into-trip"));
+            throw new CardDayDoesntFitIntoTripException(message("card-day.doesnt-fit-into-trip"));
         }
 
         tripCard.setCardDay(dto.getCardDay());
         tripCard.setStartTime(dto.getStartTime());
         tripCard.setDuration(dto.getDuration());
 
-        return mapper.tripCardToDto(tripCard);
+        TripCard saved = tripCardRepository.save(tripCard);
+        return mapper.tripCardToDto(saved);
     }
 
     public void deleteCardFromTrip(Integer tripId, Integer cardId) {
-        TripCard.Id key = new TripCard.Id(tripId, cardId);
-        TripCard tripCard = tripCardRepository.findById(key)
-                .orElseThrow(() -> new TripCardNotFoundException(message("trip-card.not-found", tripId, cardId)));
+        TripCard tripCard = findTripCardOrThrow(tripId, cardId);
         tripCardRepository.delete(tripCard);
     }
 
@@ -104,9 +104,22 @@ public class TripCardService {
         return messageSource.getMessage(code, arguments, LocaleContextHolder.getLocale());
     }
 
+    private TripCard findTripCardOrThrow(Integer tripId, Integer cardId) {
+        TripCard.Id key = new TripCard.Id(tripId, cardId);
+        return tripCardRepository.findById(key)
+                .orElseThrow(() ->
+                        new TripCardNotFoundException(message("trip-card.not-found", tripId, cardId)));
+    }
+
     private Trip findTripOrThrow(Integer id) {
         return tripRepository.findById(id)
                 .orElseThrow(() ->
                         new TripNotFoundException(message("trip.not-found", id)));
+    }
+
+    private Card findCardOrThrow(Integer id) {
+        return cardRepository.findById(id)
+                .orElseThrow(() ->
+                        new CardNotFoundException(message("card.not-found", id)));
     }
 }
