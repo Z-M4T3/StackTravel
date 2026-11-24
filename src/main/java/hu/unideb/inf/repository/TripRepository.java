@@ -1,6 +1,7 @@
 package hu.unideb.inf.repository;
 
 import hu.unideb.inf.model.entity.Trip;
+import lombok.AllArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

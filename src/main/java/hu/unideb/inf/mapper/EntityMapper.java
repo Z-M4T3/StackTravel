@@ -37,7 +37,7 @@ public interface EntityMapper {
     @Mapping(source = "userId", target = "id.userId")
     @Mapping(target = "trip", ignore = true)
     @Mapping(target = "user", ignore = true)
-    UserTrip dtoToTripUser(UserTripDto dto);
+    UserTrip dtoToUserTrip(UserTripDto dto);
 
     @Mapping(source = "id.tripId", target = "tripId")
     @Mapping(source = "id.cardId", target = "cardId")

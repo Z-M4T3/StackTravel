@@ -6,7 +6,7 @@ import lombok.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "trip_users")
+@Table(name = "user_trips")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,16 +16,14 @@ public class UserTrip {
     private Id id = new Id();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("tripId")
-    @JoinColumn(name = "trip_id")
-    private Trip trip;
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("tripId")
+    @JoinColumn(name = "trip_id")
+    private Trip trip;
 
     @Column(name = "permission_level", nullable = false)
     private String permissionLevel;

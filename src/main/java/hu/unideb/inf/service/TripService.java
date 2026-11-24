@@ -1,22 +1,17 @@
 package hu.unideb.inf.service;
 
-import hu.unideb.inf.exceptions.CardNotFoundException;
 import hu.unideb.inf.exceptions.TripNotFoundException;
 import hu.unideb.inf.exceptions.UserNotFoundException;
 import hu.unideb.inf.mapper.EntityMapper;
 import hu.unideb.inf.model.dto.TripDto;
-import hu.unideb.inf.model.entity.Card;
 import hu.unideb.inf.model.entity.Trip;
 import hu.unideb.inf.model.entity.User;
-import hu.unideb.inf.repository.CardRepository;
 import hu.unideb.inf.repository.TripRepository;
 import hu.unideb.inf.repository.UserRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -51,14 +46,14 @@ public class TripService {
 
     @Transactional(readOnly = true)
     public TripDto getById(Integer id) {
-        return mapper.tripToDto(findTrip(id));
+        return mapper.tripToDto(findTripOrThrow(id));
     }
 
     public void delete(Integer id) {
-        tripRepository.delete(findTrip(id));
+        tripRepository.delete(findTripOrThrow(id));
     }
 
-    private Trip findTrip(Integer id) {
+    private Trip findTripOrThrow(Integer id) {
         return tripRepository.findById(id)
                 .orElseThrow(() -> new TripNotFoundException(
                         message("trip.not-found", id)));
@@ -69,11 +64,11 @@ public class TripService {
     }
 
     public TripDto update(Integer id, TripDto dto) {
-        Trip trip = findTrip(id);
+        Trip trip = findTripOrThrow(id);
 
-        trip.setPublic_key(dto.getPublic_key());
-        trip.setStart_date(dto.getStart_date());
-        trip.setEnd_date(dto.getEnd_date());
+        trip.setPublicKey(dto.getPublicKey());
+        trip.setStartDate(dto.getStartDate());
+        trip.setEndDate(dto.getEndDate());
 
         Trip saved = tripRepository.save(trip);
         return mapper.tripToDto(saved);

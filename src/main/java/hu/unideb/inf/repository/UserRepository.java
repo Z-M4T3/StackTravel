@@ -1,6 +1,7 @@
 package hu.unideb.inf.repository;
 
 import hu.unideb.inf.model.entity.User;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    boolean existsById(@NonNull Integer userId);
+    User getUserById(Integer userId);
 }
